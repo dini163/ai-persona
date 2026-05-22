@@ -358,5 +358,26 @@ def main():
         
     print(f"\nSuccessfully wrote {len(characters)} characters to {output_path}!")
 
+    # ----------------------------------------------------
+    # 6. Cleanup temporary cloned repositories
+    # ----------------------------------------------------
+    if os.path.exists(repos_dir):
+        print(f"Cleaning up temporary repositories folder: {repos_dir}...")
+        import shutil
+        import stat
+        
+        def remove_readonly(func, path, excinfo):
+            try:
+                os.chmod(path, stat.S_IWRITE)
+                func(path)
+            except Exception:
+                pass
+                
+        try:
+            shutil.rmtree(repos_dir, onerror=remove_readonly)
+            print("Successfully removed temporary files, project structure is clean!")
+        except Exception as e:
+            print(f"Warning: Failed to remove temporary files: {e}")
+
 if __name__ == "__main__":
     main()
