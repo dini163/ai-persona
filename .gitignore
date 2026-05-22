@@ -1,0 +1,4 @@
+# Local development repositories
+/data/repos/
+*.log
+.DS_Store

@@ -1,0 +1,55 @@
+name: Sync Upstream Agents & Auto-Update Hub
+
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Runs every Sunday at 00:00 UTC
+  workflow_dispatch: # Allows manual execution from GitHub Action UI
+  push:
+    branches:
+      - main
+    paths:
+      - 'scripts/**'
+      - '.github/workflows/sync-characters.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    name: Sync & Aggregate Agents
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip' # Optional, if we ever add requirements.txt
+
+      - name: Run Clone Upstream Repositories
+        run: |
+          python scripts/clone_repos.py
+
+      - name: Run Extraction & Aggregation Engine
+        run: |
+          python scripts/sync_characters.py
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Check if data/characters.json has changes
+          if git status --porcelain data/characters.json | grep -q "M data/characters.json"; then
+            echo "Changes detected in characters.json, committing..."
+            git add data/characters.json
+            git commit -m "chore(data): auto-sync latest agents from upstream repositories [skip ci]"
+            git push origin main
+          else
+            echo "No changes detected in characters.json. Skipping commit."
+          fi

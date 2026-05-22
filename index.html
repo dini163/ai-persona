@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Persona Hub — Curated AI Character Prompts & Personas</title>
+  <meta name="description" content="Browse 300+ curated AI character prompts from top open-source projects. Ready-to-use system prompts for OpenClaw, Hermes Agent, Claude, and ChatGPT.">
+  <meta name="keywords" content="AI prompts, AI characters, system prompts, OpenClaw, Hermes Agent, AI agents, prompt engineering">
+  <meta name="author" content="AI Persona Hub">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="AI Persona Hub — Curated AI Character Prompts">
+  <meta property="og:description" content="Browse 300+ curated AI character prompts from top open-source projects. One-click copy for OpenClaw, Hermes Agent, Claude, and ChatGPT.">
+  <meta property="og:type" content="website">
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎭</text></svg>">
+
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css?v=1.7.1">
+</head>
+<body>
+
+  <!-- Premium Background System -->
+  <div class="bg-ambient-glow" aria-hidden="true">
+    <div class="bg-glow-orb bg-glow-orb--1"></div>
+    <div class="bg-glow-orb bg-glow-orb--2"></div>
+    <div class="bg-glow-orb bg-glow-orb--3"></div>
+  </div>
+  <div class="bg-grid-mesh" aria-hidden="true"></div>
+
+  <div class="app">
+
+    <!-- ========== Hero ========== -->
+    <header class="hero" id="hero">
+      <div class="container">
+        <div class="hero__badge">
+          <span class="hero__badge-dot"></span>
+          300+ Aggregated Agent Personas
+        </div>
+
+        <h1 class="hero__title">
+          <span class="hero__title-text">AI Persona Hub</span>
+        </h1>
+
+        <p class="hero__subtitle">
+          An elite, fully aggregated registry of <strong class="hero__subtitle-highlight-1">300+ system prompts</strong> and digital employee personas compiled from <strong class="hero__subtitle-highlight-2">premier open-source agent ecosystems</strong>. Optimize your personal assistant or subagent network instantly.
+        </p>
+
+        <div class="hero__stats">
+          <div class="hero__stat hero__stat--characters">
+            <div class="hero__stat-value hero__stat-value--characters" id="stat-total">300</div>
+            <div class="hero__stat-label">Characters</div>
+          </div>
+          <div class="hero__stat hero__stat--sources">
+            <div class="hero__stat-value hero__stat-value--sources" id="stat-sources">4</div>
+            <div class="hero__stat-label">Sources</div>
+          </div>
+          <div class="hero__stat hero__stat--categories">
+            <div class="hero__stat-value hero__stat-value--categories" id="stat-categories">—</div>
+            <div class="hero__stat-label">Categories</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ========== Toolbar ========== -->
+    <nav class="toolbar" id="toolbar" aria-label="Search and filter">
+      <div class="container">
+        <div class="toolbar__inner">
+          <div class="filter-chips" id="filter-chips" role="group" aria-label="Category filters">
+            <!-- Dynamically populated -->
+          </div>
+          <div class="search-box">
+            <span class="search-box__icon" aria-hidden="true">🔍</span>
+            <input
+              type="search"
+              id="search-input"
+              class="search-box__input"
+              placeholder="Search by role name, tech stack, tags, category..."
+              autocomplete="off"
+              aria-label="Search characters"
+            >
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- ========== Gallery ========== -->
+    <main class="gallery" id="gallery">
+      <div class="container">
+        <div class="gallery__grid" id="gallery-grid" role="list">
+          <!-- Dynamically populated -->
+          <div class="gallery__empty">
+            <div class="gallery__empty-icon">⏳</div>
+            <div class="gallery__empty-text">Loading premium directory...</div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ========== Footer ========== -->
+    <footer class="footer">
+      <div class="container">
+        <p class="footer__text">
+          <strong>AI Persona Hub</strong> — Aggregated from the open-source community
+        </p>
+        <div class="footer__sources">
+          <a class="footer__link" href="https://github.com/msitarzewski/agency-agents" target="_blank" rel="noopener">🎭 The Agency</a>
+          <a class="footer__link" href="https://github.com/cft0808/edict" target="_blank" rel="noopener">🏛️ 三省六部 Edict</a>
+          <a class="footer__link" href="https://github.com/Donchitos/Claude-Code-Game-Studios" target="_blank" rel="noopener">🎮 Game Studios</a>
+          <a class="footer__link" href="https://github.com/Claw-Company/clawcompany" target="_blank" rel="noopener">🦞 ClawCompany</a>
+        </div>
+        <p class="footer__text" style="margin-top:20px;font-size:0.75rem;opacity:0.5;">
+          This platform is an independent aggregation resource. Emojis, system prompts, and architectures are property of their respective open-source creators.
+        </p>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ========== Modal Overlay ========== -->
+  <div class="modal-overlay" id="modal-overlay" role="dialog" aria-modal="true" aria-label="Character details">
+    <div class="modal">
+      <!-- Dynamically populated -->
+    </div>
+  </div>
+
+  <!-- ========== Floating Theme Selector ========== -->
+  <div class="theme-selector" id="theme-selector">
+    <button class="theme-selector__trigger" id="theme-trigger" aria-label="Toggle theme" aria-haspopup="true" aria-expanded="false">
+      <span class="theme-selector__icon">🌓</span>
+    </button>
+    <div class="theme-selector__menu" id="theme-menu" role="menu">
+      <button class="theme-selector__item" data-theme="light" role="menuitem">☀️ Light</button>
+      <button class="theme-selector__item" data-theme="dark" role="menuitem">🌙 Dark</button>
+      <button class="theme-selector__item" data-theme="system" role="menuitem">💻 System</button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="app.js?v=1.7.0"></script>
+</body>
+</html>
