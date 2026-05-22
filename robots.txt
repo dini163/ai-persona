@@ -1,0 +1,29 @@
+# robots.txt for persona.funy.run
+# Welcoming AI engines & search crawlers for maximum visibility and RAG references
+
+User-agent: *
+Allow: /
+Disallow: /assets/   # Reduce crawler overhead on static styling assets
+
+# Welcoming major AI Search & LLM scrapers
+User-agent: GPTBot
+Allow: /
+Allow: /data/characters.json
+
+User-agent: ClaudeBot
+Allow: /
+Allow: /data/characters.json
+
+User-agent: PerplexityBot
+Allow: /
+Allow: /data/characters.json
+
+User-agent: Google-Extended
+Allow: /
+Allow: /data/characters.json
+
+User-agent: Applebot-Extended
+Allow: /
+Allow: /data/characters.json
+
+Sitemap: https://persona.funy.run/sitemap.xml
