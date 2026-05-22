@@ -12,6 +12,7 @@
   let activeCategory = 'all';
   let searchQuery = '';
   let sources = {};
+  let currentLang = 'en';
 
   /* ==================== DOM Refs ==================== */
   const $ = (sel, ctx = document) => ctx.querySelector(sel);
@@ -42,7 +43,7 @@
       grid.innerHTML = `
         <div class="gallery__empty">
           <div class="gallery__empty-icon">⚠️</div>
-          <div class="gallery__empty-text">Failed to load characters. Please try refreshing.</div>
+          <div class="gallery__empty-text" data-i18n="failed_load">${getTranslation('failed_load')}</div>
         </div>`;
     }
   }
@@ -182,14 +183,14 @@
       if (isHiddenActive) {
         dropdownBtn.classList.add('active');
         const textSpan = $('.more-chips-text', dropdownBtn);
-        if (textSpan) textSpan.textContent = `More: ${activeCategory}`;
+        if (textSpan) textSpan.textContent = `${getTranslation('filter_more')}: ${activeCategory}`;
         
         // Remove active class from all main row chips
         chips.forEach(c => c.classList.remove('active'));
       } else {
         dropdownBtn.classList.remove('active');
         const textSpan = $('.more-chips-text', dropdownBtn);
-        if (textSpan) textSpan.textContent = 'More';
+        if (textSpan) textSpan.textContent = getTranslation('filter_more');
         
         // Highlight active main chip
         chips.forEach(c => {
@@ -210,22 +211,26 @@
       count: categories[cat]
     })).sort((a, b) => b.count - a.count);
 
-    let html = `<button class="filter-chip active" data-cat="all">All<span class="filter-chip__count">${allCharacters.length}</span></button>`;
+    let html = `<button class="filter-chip active" data-cat="all"><span data-i18n="filter_all">${getTranslation('filter_all')}</span><span class="filter-chip__count">${allCharacters.length}</span></button>`;
     sortedCats.forEach(cat => {
-      html += `<button class="filter-chip" data-cat="${cat.name}">${cat.name}<span class="filter-chip__count">${cat.count}</span></button>`;
+      const localizedCat = (window.I18N_CATEGORIES && window.I18N_CATEGORIES[currentLang] && window.I18N_CATEGORIES[currentLang][cat.name]) || cat.name;
+      html += `<button class="filter-chip" data-cat="${cat.name}">${localizedCat}<span class="filter-chip__count">${cat.count}</span></button>`;
     });
 
     html += `
       <div class="filter-dropdown" id="filter-dropdown">
         <button class="filter-chip filter-chip--more" id="more-chips-btn" aria-haspopup="true" aria-expanded="false">
-          <span class="more-chips-text">More</span> <span class="more-chips-arrow">▾</span>
+          <span class="more-chips-text" data-i18n="filter_more">${getTranslation('filter_more')}</span> <span class="more-chips-arrow">▾</span>
         </button>
         <div class="filter-dropdown-menu" id="filter-dropdown-menu" role="menu">
-          ${sortedCats.map(cat => `
-            <button class="filter-dropdown-item" data-cat="${cat.name}" role="menuitem">
-              ${cat.name} <span class="filter-dropdown-item__count">${cat.count}</span>
-            </button>
-          `).join('')}
+          ${sortedCats.map(cat => {
+            const localizedCat = (window.I18N_CATEGORIES && window.I18N_CATEGORIES[currentLang] && window.I18N_CATEGORIES[currentLang][cat.name]) || cat.name;
+            return `
+              <button class="filter-dropdown-item" data-cat="${cat.name}" role="menuitem">
+                ${localizedCat} <span class="filter-dropdown-item__count">${cat.count}</span>
+              </button>
+            `;
+          }).join('')}
         </div>
       </div>
     `;
@@ -292,7 +297,22 @@
       const catMatch = activeCategory === 'all' || c.category === activeCategory;
       if (!catMatch) return false;
       if (!searchQuery) return true;
-      const haystack = [c.name, c.description, ...c.tags, c.category, c.source].join(' ').toLowerCase();
+      
+      const localizedName = (c.translations && c.translations[currentLang] && c.translations[currentLang].name) || c.name;
+      const localizedDesc = (c.translations && c.translations[currentLang] && c.translations[currentLang].description) || c.description;
+      const localizedCat = (window.I18N_CATEGORIES && window.I18N_CATEGORIES[currentLang] && window.I18N_CATEGORIES[currentLang][c.category]) || c.category;
+
+      const haystack = [
+        c.name, 
+        c.description, 
+        localizedName, 
+        localizedDesc, 
+        localizedCat,
+        ...c.tags, 
+        c.category, 
+        c.source
+      ].join(' ').toLowerCase();
+      
       return haystack.includes(searchQuery);
     });
     renderCards();
@@ -304,7 +324,7 @@
       grid.innerHTML = `
         <div class="gallery__empty">
           <div class="gallery__empty-icon">🔍</div>
-          <div class="gallery__empty-text">No characters found. Try a different search or filter.</div>
+          <div class="gallery__empty-text" data-i18n="no_results">${getTranslation('no_results')}</div>
         </div>`;
       return;
     }
@@ -313,25 +333,29 @@
       const source = sources[c.source] || {};
       const catClass = 'cat-' + c.category.toLowerCase().replace(/\s+/g, '-');
       const delay = Math.min(i * 50, 300); // capped at 300ms for high-end snappy feel
+      
+      const localizedName = (c.translations && c.translations[currentLang] && c.translations[currentLang].name) || c.name;
+      const localizedDesc = (c.translations && c.translations[currentLang] && c.translations[currentLang].description) || c.description;
+      const localizedCat = (window.I18N_CATEGORIES && window.I18N_CATEGORIES[currentLang] && window.I18N_CATEGORIES[currentLang][c.category]) || c.category;
 
       return `
-        <article class="card" data-id="${c.id}" style="transition-delay: ${delay}ms" tabindex="0" role="button" aria-label="View ${c.name} prompt">
+        <article class="card" data-id="${c.id}" style="transition-delay: ${delay}ms" tabindex="0" role="button" aria-label="View ${localizedName} prompt">
           <div class="card__header">
             <div class="card__avatar card__avatar--gradient">${c.emoji}</div>
             <div class="card__meta">
-              <h3 class="card__name">${c.name}</h3>
+              <h3 class="card__name">${localizedName}</h3>
               <span class="card__source">
                 <span class="card__source-dot" style="background:${source.color || '#666'}"></span>
                 ${source.name || c.source}
               </span>
             </div>
           </div>
-          <p class="card__desc">${c.description}</p>
+          <p class="card__desc">${localizedDesc}</p>
           <div class="card__footer">
             <div class="card__tags">
               ${c.tags.slice(0, 2).map(t => `<span class="card__tag">${t}</span>`).join('')}
             </div>
-            <span class="card__category-badge ${catClass}">${c.category}</span>
+            <span class="card__category-badge ${catClass}">${localizedCat}</span>
           </div>
         </article>`;
     }).join('');
@@ -383,45 +407,50 @@
     const catClass = 'cat-' + c.category.toLowerCase().replace(/\s+/g, '-');
 
     const modal = $('.modal', modalOverlay);
+    
+    const localizedName = (c.translations && c.translations[currentLang] && c.translations[currentLang].name) || c.name;
+    const localizedDesc = (c.translations && c.translations[currentLang] && c.translations[currentLang].description) || c.description;
+    const localizedCat = (window.I18N_CATEGORIES && window.I18N_CATEGORIES[currentLang] && window.I18N_CATEGORIES[currentLang][c.category]) || c.category;
+
     modal.innerHTML = `
       <div class="modal__header">
         <div class="modal__avatar">${c.emoji}</div>
         <div class="modal__info">
-          <h2 class="modal__name">${c.name}</h2>
+          <h2 class="modal__name">${localizedName}</h2>
           <div class="modal__meta-row">
-            <span class="card__category-badge ${catClass}">${c.category}</span>
+            <span class="card__category-badge ${catClass}">${localizedCat}</span>
             <span class="card__source">
               <span class="card__source-dot" style="background:${source.color || '#666'}"></span>
               ${source.name || c.source}
             </span>
           </div>
-          <p style="font-size:0.88rem;color:var(--text-secondary);margin-top:4px">${c.description}</p>
+          <p style="font-size:0.88rem;color:var(--text-secondary);margin-top:4px">${localizedDesc}</p>
         </div>
         <button class="modal__close" id="modal-close" aria-label="Close">✕</button>
       </div>
       <div class="modal__body">
-        <h4 class="modal__section-title">System Prompt</h4>
+        <h4 class="modal__section-title" data-i18n="modal_system_prompt">${getTranslation('modal_system_prompt')}</h4>
         <div class="modal__prompt-box" id="prompt-text">${escapeHtml(c.prompt)}</div>
         <button class="modal__copy-btn" id="copy-btn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Copy Prompt
+          <span data-i18n="modal_copy_prompt">${getTranslation('modal_copy_prompt')}</span>
         </button>
 
-        <h4 class="modal__section-title">Tags</h4>
+        <h4 class="modal__section-title" data-i18n="modal_tags">${getTranslation('modal_tags')}</h4>
         <div class="modal__tags">
           ${c.tags.map(t => `<span class="card__tag">${t}</span>`).join('')}
         </div>
 
-        <h4 class="modal__section-title">Compatible With</h4>
+        <h4 class="modal__section-title" data-i18n="modal_compatible">${getTranslation('modal_compatible')}</h4>
         <div class="modal__compat">
           ${c.compatible.map(tool => `<span class="modal__compat-badge">${formatToolName(tool)}</span>`).join('')}
         </div>
 
         ${source.url ? `
-        <h4 class="modal__section-title">Source</h4>
+        <h4 class="modal__section-title" data-i18n="modal_source">${getTranslation('modal_source')}</h4>
         <a class="modal__source-link" href="${source.url}" target="_blank" rel="noopener">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-          ${source.name} on GitHub
+          ${source.name} <span data-i18n="modal_on_github">${getTranslation('modal_on_github')}</span>
         </a>` : ''}
       </div>`;
 
@@ -435,12 +464,12 @@
         btn.classList.add('copied');
         btn.innerHTML = `
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          Copied!`;
+          ${getTranslation('modal_copied')}`;
         setTimeout(() => {
           btn.classList.remove('copied');
           btn.innerHTML = `
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            Copy Prompt`;
+            ${getTranslation('modal_copy_prompt')}`;
         }, 2000);
       });
     });
@@ -539,6 +568,15 @@
     // Toggle menu
     themeTrigger.addEventListener('click', e => {
       e.stopPropagation();
+      
+      // Close other dropdowns (lang selector)
+      const langMenu = $('#lang-menu');
+      const langTrigger = $('#lang-trigger');
+      if (langMenu && langTrigger) {
+        langMenu.classList.remove('open');
+        langTrigger.setAttribute('aria-expanded', 'false');
+      }
+
       const isOpen = themeMenu.classList.contains('open');
       themeMenu.classList.toggle('open', !isOpen);
       themeTrigger.setAttribute('aria-expanded', !isOpen);
@@ -569,8 +607,162 @@
     });
   }
 
+  /* ==================== Language Selection System ==================== */
+  const langSelector = $('#lang-selector');
+  const langTrigger = $('#lang-trigger');
+  const langMenu = $('#lang-menu', langSelector);
+  const langItems = $$('.lang-selector__item', langSelector);
+
+  function getTranslation(key, lang = currentLang) {
+    const data = window.I18N_DATA || {};
+    const langData = data[lang] || data['en'] || {};
+    return langData[key] || (data['en'] || {})[key] || key;
+  }
+
+  function updateUIStrings() {
+    // 1. Dynamic document metadata (SEO)
+    document.title = getTranslation('site_title');
+    const metaDesc = $('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute('content', getTranslation('site_description'));
+    }
+
+    // 2. Translate all nodes with data-i18n
+    $$('[data-i18n]').forEach(el => {
+      const key = el.dataset.i18n;
+      el.innerHTML = getTranslation(key);
+    });
+
+    // 3. Translate placeholders with data-i18n-placeholder
+    $$('[data-i18n-placeholder]').forEach(el => {
+      const key = el.dataset.i18nPlaceholder;
+      el.placeholder = getTranslation(key);
+    });
+
+    // 4. Update the "More: {cat}" dynamic filter chip or "More" text if dropdown button is initialized
+    const dropdownBtn = $('#more-chips-btn');
+    if (dropdownBtn) {
+      const textSpan = $('.more-chips-text', dropdownBtn);
+      if (textSpan) {
+        const chips = $$('.filter-chip:not(.filter-chip--more)', filterContainer);
+        const visibleChips = chips.filter(c => c.style.display !== 'none');
+        const isHiddenActive = activeCategory !== 'all' && !visibleChips.some(c => c.dataset.cat === activeCategory);
+        if (isHiddenActive) {
+          textSpan.textContent = `${getTranslation('filter_more')}: ${activeCategory}`;
+        } else {
+          textSpan.textContent = getTranslation('filter_more');
+        }
+      }
+    }
+    
+    // 5. Update empty grid search or load text if displayed
+    const emptyStateText = $('.gallery__empty-text', grid);
+    if (emptyStateText) {
+      if (grid.innerHTML.includes('⏳')) {
+        emptyStateText.textContent = getTranslation('loading_text');
+      } else if (grid.innerHTML.includes('⚠️')) {
+        emptyStateText.textContent = getTranslation('failed_load');
+      } else if (grid.innerHTML.includes('🔍')) {
+        emptyStateText.textContent = getTranslation('no_results');
+      }
+    }
+  }
+
+  function applyLanguage(lang) {
+    currentLang = lang;
+    document.documentElement.setAttribute('lang', lang);
+    document.documentElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+    
+    // Update active class in UI
+    langItems.forEach(item => {
+      item.classList.toggle('active', item.dataset.lang === lang);
+    });
+
+    // Translate the UI elements
+    updateUIStrings();
+
+    // Rebuild filter chips and render cards for the language
+    if (allCharacters.length) {
+      buildFilterChips();
+      adjustVisibleChips();
+      applyFilters();
+    }
+  }
+
+  function initLanguage() {
+    // 1. Detect language: local cache -> browser preferences -> default to 'en'
+    let savedLang = localStorage.getItem('hub-lang');
+    if (!savedLang) {
+      const browserLang = navigator.language || navigator.userLanguage || '';
+      if (browserLang.startsWith('zh-TW') || browserLang.startsWith('zh-HK') || browserLang.startsWith('zh-MO')) {
+        savedLang = 'zh-TW';
+      } else if (browserLang.startsWith('zh')) {
+        savedLang = 'zh-CN';
+      } else if (browserLang.startsWith('fr')) {
+        savedLang = 'fr';
+      } else if (browserLang.startsWith('es')) {
+        savedLang = 'es';
+      } else if (browserLang.startsWith('pt')) {
+        savedLang = 'pt';
+      } else if (browserLang.startsWith('ru')) {
+        savedLang = 'ru';
+      } else if (browserLang.startsWith('ja')) {
+        savedLang = 'ja';
+      } else if (browserLang.startsWith('ko')) {
+        savedLang = 'ko';
+      } else if (browserLang.startsWith('ar')) {
+        savedLang = 'ar';
+      } else {
+        savedLang = 'en';
+      }
+    }
+    
+    // Ensure the language is supported
+    const supportedLangs = ['en', 'zh-CN', 'zh-TW', 'fr', 'es', 'pt', 'ru', 'ja', 'ko', 'ar'];
+    if (!supportedLangs.includes(savedLang)) {
+      savedLang = 'en';
+    }
+
+    applyLanguage(savedLang);
+
+    // Toggle menu
+    langTrigger.addEventListener('click', e => {
+      e.stopPropagation();
+      const isOpen = langMenu.classList.contains('open');
+      
+      // Close other floating dropdowns (theme menu)
+      const themeMenu = $('#theme-menu');
+      const themeTrigger = $('#theme-trigger');
+      if (themeMenu && themeTrigger) {
+        themeMenu.classList.remove('open');
+        themeTrigger.setAttribute('aria-expanded', 'false');
+      }
+
+      langMenu.classList.toggle('open', !isOpen);
+      langTrigger.setAttribute('aria-expanded', !isOpen);
+    });
+
+    // Click item
+    langItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const lang = item.dataset.lang;
+        localStorage.setItem('hub-lang', lang);
+        applyLanguage(lang);
+        langMenu.classList.remove('open');
+        langTrigger.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    // Click outside to close
+    document.addEventListener('click', () => {
+      langMenu.classList.remove('open');
+      langTrigger.setAttribute('aria-expanded', 'false');
+    });
+  }
+
   /* ==================== Init ==================== */
   initTheme();
+  initLanguage();
   loadData().then(() => {
     checkHash();
   });
